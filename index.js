@@ -1,34 +1,29 @@
 const express = require('express');
 const app = express();
 const server = require("http").createServer(app);
-const io = require("socket.io")(server);
 
-
-app.get('/', (req, res) => {
-    // res.status(200).json({ status: 'OK', msg: 'Server is running!' });
-    res.sendFile(__dirname + '/index.html');
-});
+const socketIoOption = {
+    cors: {
+        origin: '*'
+    }
+}
+const io = require("socket.io")(server, socketIoOption);
 
 
 const socketService = (socket) => {
+
+    console.log('a user connected');
+    socket.on('message', (data) => console.log(data.msg) );
+    
     require('./src/socket_services/exam')(io, socket);
+
 }
 
-
 io.on("connection", socketService);
-// io.on('connection', (socket) => {
-    
-//     console.log('a user connected');
 
-//     socket.on('disconnect', () => {
-//         console.log('user disconnected');
-//     });
 
-//     socket.on('message', (data) => {
-//         console.log(data.msg)
-//     });
-    
-// })
+
+app.get('/', (req, res) => res.sendFile(__dirname + '/index.html') );
 
 
 server.listen(3000, () => {
